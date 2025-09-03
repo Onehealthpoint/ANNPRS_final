@@ -13,7 +13,7 @@
 
         <div class="video-section">
             <h2>Processed Video</h2>
-            <video controls>
+            <video class="media" controls>
                 <source src="{{ url_for('static', filename='uploads/' + processed_video) }}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -27,7 +27,7 @@
                     <tr>
                         <th>Plate Text</th>
                         <th>Confidence</th>
-                        <th>Coordinates (x1,y1,x2,y2)</th>
+{#                        <th>Coordinates (x1,y1,x2,y2)</th>#}
                     </tr>
                 </thead>
                 <tbody>
@@ -35,7 +35,7 @@
                     <tr>
                         <td>{{ plate.text }}</td>
                         <td>{{ "%.2f"|format(plate.confidence * 100) }}%</td>
-                        <td>{{ plate.coordinates }}</td>
+{#                        <td>{{ plate.coordinates }}</td>#}
                     </tr>
                     {% endfor %}
                 </tbody>

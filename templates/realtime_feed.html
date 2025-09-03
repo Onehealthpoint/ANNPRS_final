@@ -5,14 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time Recognition</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+    function updatePlates() {
+        fetch('/api/realtime_results')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('plates-tbody');
+                tbody.innerHTML = '';
+                data.plates.forEach(plate => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${plate.text}</td>
+                                     <td>${(plate.confidence * 100).toFixed(2)}%</td>`;
+                    tbody.appendChild(row);
+                });
+            });
+    }
+    setInterval(updatePlates, 1000);
+    window.onload = updatePlates;
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Real-time Number Plate Recognition</h1>
         <a href="/" class="back-btn">← Back to Home</a>
 
-        <div class="realtime-feed">
-            <img src="{{ url_for('realtime_feed') }}" alt="Live Feed">
+        <div class="main-flex">
+            <div class="realtime-feed">
+                <img src="/api/realtime_feed" alt="Live Feed">
+            </div>
+
+
+            <div class="plates-section">
+                <h2>Recognized Number Plates</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Plate Text</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody id="plates-tbody">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="controls">

@@ -1,5 +1,6 @@
 from ultralytics import YOLO
 from easyocr import Reader
+import torch
 
 __DEBUG_MODE__ = False
 
@@ -15,7 +16,7 @@ __UPLOAD_FOLDER__ = "static/uploads/"
 __PROCESSED_FOLDER__ = "static/processed/"
 
 __ALLOWED_EXTENSIONS__ = {'png', 'jpg', 'jpeg', 'mp4', 'avi', 'mov', 'mkv'}
-__ALLOWED_FILE_SIZE__ = 2 * 1024 * 1024  # 2 MB
+__ALLOWED_FILE_SIZE__ = 10 * 1024 * 1024  # 10 MB
 
 __ALLOWED_ENG_CHAR__ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 __ALLOWED_NEP_CHAR__ = "अआइईउऊऋएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसहक्षत्रज्ञ०१२३४५६७८९-"
@@ -60,11 +61,39 @@ __NEP_ALPHA_CHAR_LIST__ = [
 __NEP_DIGIT_CHAR_LIST__ = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
 
 __OD_THRESHOLD__ = 0.7
-__OCR_THRESHOLD__ = 0.7
+__OCR_THRESHOLD__ = 0.5
 __IOU_THRESHOLD__ = 0.3
+__VIDEO_OCR_THRESHOLD__ = 0.3
 
-__TRACK_SIZE__ = 10
-__TRACK_LIFESPAN__ = 10
+__TRACK_MAX_SIZE__ = 10
+__TRACK_MAX_AGE__ = 10
+__TRACK_MIN_HITS__ = 3
+
+
+__HAS_CUDA__ = torch.cuda.is_available()
+
+if __HAS_CUDA__:
+    read_text_config = {
+        'detail': 1,
+        'paragraph': False,
+        'low_text': 0.4,
+        'link_threshold': 0.4,
+        'add_margin': 0.1,
+        'decoder': 'beamsearch',
+        'beamWidth': 10,
+        'workers': 0
+    }
+else:
+    read_text_config = {
+        'detail': 1,
+        'paragraph': False,
+        'low_text': 0.4,
+        'link_threshold': 0.4,
+        'add_margin': 0.1,
+        'decoder': 'greedy',
+        'beamWidth': 1,
+        'workers': 0
+    }
 
 reader_config = {
     'model_storage_directory': __OCR_FOLDER__,
@@ -74,26 +103,12 @@ reader_config = {
 }
 
 en_read_text_config = {
-    'detail': 1,
-    'paragraph': False,
-    'low_text': 0.4,
-    'link_threshold': 0.4,
-    'add_margin': 0.1,
-    'decoder': 'greedy',
-    'beamWidth': 5,
-    'workers': 0,
+    **read_text_config,
     'allowlist':__ALLOWED_ENG_CHAR__
 }
 
 ne_read_text_config = {
-    'detail': 1,
-    'paragraph': False,
-    'low_text': 0.4,
-    'link_threshold': 0.4,
-    'add_margin': 0.1,
-    'decoder': 'greedy',
-    'beamWidth': 5,
-    'workers': 0,
+    **read_text_config,
     'allowlist':__ALLOWED_NEP_CHAR__
 }
 

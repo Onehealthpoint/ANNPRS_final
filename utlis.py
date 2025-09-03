@@ -7,39 +7,32 @@ def draw_text(plate, text, confidence, lang, bbox):
     if plate is None or plate.size == 0 or text is None or len(text) == 0:
         return plate
 
-    plate = np.array(plate)
+    if isinstance(plate, Image.Image):
+        plate = np.array(plate)
 
-    overlay = plate.copy()
     output = plate.copy()
+    x1, y1, x2, y2 = bbox
 
-    if lang == 'en':
-        font = cv2.FONT_HERSHEY_SIMPLEX
-    else:
-        font = config.__NEP_FONT_PATH__
-    font_scale = 0.6
+    cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 255), 2)
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.7
     font_thickness = 2
 
-    text_str = f"{text}%"
-    text_size, _ = cv2.getTextSize(text_str, 2, font_scale, font_thickness)
-    text_width, text_height = text_size
+    if isinstance(confidence, str):
+        confidence = float(confidence)
 
-    x, y, w, h = bbox
-    text_x = max(x, 0)
-    text_y = max(y - 10, text_height + 10)
+    if lang == 'en' and text:
+        label = f"{text} ({confidence:.2f})"
+    else:
+        label = f"{confidence:.2f}"
 
-    cv2.rectangle(overlay, (text_x, text_y - text_height - 5), (text_x + text_width, text_y + 5), (0, 0, 0), -1)
-    alpha = 0.6
-    cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
+    text_size, _ = cv2.getTextSize(label, font, font_scale, font_thickness)
+    text_x = x1
+    text_y = max(y1 - 10, text_size[1] + 10)
 
-    cv2.putText(output, text_str, (text_x, text_y), 3, font_scale, (255, 255, 255), font_thickness)
-    # if lang == 'en':
-    #     pass
-    # else:
-    #     image_pil = Image.fromarray(output)
-    #     draw = ImageDraw.Draw(image_pil)
-    #     text_color = (255, 255, 255)  # Default to white
-    #     draw.text((x, y), text, font=font, fill=text_color)
-    #     output = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)
+    cv2.rectangle(output, (text_x, text_y - text_size[1] - 5), (text_x + text_size[0], text_y + 5), (0, 0, 0), -1)
+    cv2.putText(output, label, (text_x, text_y), font, font_scale, (255, 255, 255), font_thickness, cv2.LINE_AA)
 
     return output
 

@@ -14,7 +14,7 @@
         <div class="results-container">
             <div class="image-section">
                 <h2>Original Image</h2>
-                <img src="{{ url_for('static', filename='uploads/' + original_image) }}" alt="Original Image">
+                <img class="media" src="{{ url_for('static', filename='uploads/' + original_image) }}" alt="Original Image">
             </div>
 
             <div class="image-section">
@@ -38,7 +38,7 @@
                     {% for plate in plates %}
                     <tr>
                         <td>{{ plate.text }}</td>
-                        <td>{{ (plate.text_conf * 100)|round(2) }}%</td>
+                        <td>{{ "%.2f"|format(plate.confidence * 100) }}%</td>
 {#                        <td>{{ plate.coordinates }}</td>  #}
                     </tr>
                     {% endfor %}
